@@ -16,4 +16,16 @@ public class DatabaseManager {
     public Blacklist getBlacklist(){
         return null;
     }
+    
+    private String URL;
+    private String USER;
+    private String PASSWORD;
+    
+    public DatabaseManager()
+    {
+        URL = "46.17.2.254:3306";
+        USER = "ics7";
+        PASSWORD = "EfGYm8SKb6vbCNjp";
+    }
+    
 }

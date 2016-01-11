@@ -19,7 +19,7 @@ public class NewMain {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException { //TEST VOOR DATABASEMETHODES
         DatabaseManager man = new DatabaseManager();
         List<String> macs = new ArrayList<>();
         macs.add("192.168.0.1");
@@ -30,6 +30,24 @@ public class NewMain {
         System.out.println(user.getAccessToken());
         System.out.println(user.getRefreshToken());
         System.out.println(user.getMacs());
+        man.addUserToBlacklist(user.getUserId());
+        for (int userId : man.getUserIdsInBlacklist()) {
+            System.out.println("UserId in BLACKLIST found: " + userId);
+        }
+        if(man.removeUserFromBlacklist(user.getUserId()))
+        {
+            System.out.println("UserId removed from BLACKLIST: " + user.getUserId());
+        }
+        for (int userId : man.getUserIdsInBlacklist()) {
+            System.out.println("UserId in blacklist found: " + userId);
+        }
+        System.out.println("User " + user.getUserId() + " accesstoken: " + user.getAccessToken());
+        user.setAccessToken("789");
+        if (man.updateUser(user)){
+            System.out.println("Changed user " + user.getUserId() + " accesstoken");
+            System.out.println("User " + user.getUserId() + " accesstoken: " + (man.getUser(user.getUserId())).getAccessToken());
+        }
+        
     }
-    
+
 }

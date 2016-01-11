@@ -27,8 +27,6 @@ public class DatabaseManager {
     private final String DRIVER;
 
     private Connection con = null;
-    private PreparedStatement p = null;
-    private ResultSet rs = null;
 
     public DatabaseManager() throws SQLException {
         URL = "jdbc:mysql://46.17.2.254:3306/ics7_tracker";
@@ -39,103 +37,115 @@ public class DatabaseManager {
     }
 
     public User addUser(String name, String accessToken, String refreshToken, List<String> macs) {
-        User user;
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        User user = null;
         try {
-            p = con.prepareStatement("INSERT INTO USER(NAME, ACCESSTOKEN, REFRESHTOKEN) VALUES (NAME = ?, ACCESSTOKEN = ?, REFRESHTOKEN = ?)", Statement.RETURN_GENERATED_KEYS);
+            p = con.prepareStatement("INSERT INTO PERSON(NAME, ACCESSTOKEN, REFRESHTOKEN) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
             int i = 1;
             p.setString(i++, name);
             p.setString(i++, accessToken);
             p.setString(i++, refreshToken);
-            p.executeQuery();
-            rs = p.getGeneratedKeys();
+            p.executeUpdate();
+           rs = p.getGeneratedKeys();
             if (rs.next()) {
                 int userId = rs.getInt(1);
                 addMacs(macs, userId);
-                return getUser(userId);
+                user = getUser(userId);
             }
-
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
 
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (p != null) {
-                    p.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
         }
-        return null;
+        return user;
     }
+    
+    public boolean addUser(User user)
+    {
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        try {
+            p = con.prepareStatement("INSERT INTO PERSON(NAME, ACCESSTOKEN, REFRESHTOKEN) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            int i = 1;
+            p.setString(i++, user.getName());
+            p.setString(i++, user.getAccessToken());
+            p.setString(i++, user.getRefreshToken());
+            p.executeUpdate();
+           rs = p.getGeneratedKeys();
+            if (rs.next()) {
+                int userId = rs.getInt(1);
+                if(addMacs(user.getMacs(), userId))
+                {
+                    return true;
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
+        }
+        return false;
+    }
+    
 
     public User getUser(int userId) {
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        User user = null;
         try {
-            p = con.prepareStatement("SELECT * FROM USER WHERE USERID = ?");
+            p = con.prepareStatement("SELECT * FROM PERSON WHERE USERID = ?");
             int i = 1;
             p.setInt(i++, userId);
 
             rs = p.executeQuery();
             if (rs.next()) {
                 List<String> macs = getMacsByUserId(userId);
-                return new User(userId, rs.getString(2), rs.getString(3), rs.getString(4), macs);
+                user = new User(userId, rs.getString(2), rs.getString(3), rs.getString(4), macs);
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
-
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (p != null) {
-                    p.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
         }
-        return null;
+        return user;
     }
 
-    public User getUser(String mac) {
+    public User getUserByMac(String mac) {
         User user;
         return null;
         //return user;
     }
 
     public boolean addMacs(List<String> macs, int userId) {
-        try {
-            for (String mac : macs) {
-                p = con.prepareStatement("INSERT INTO MAC(MAC, USERID) VALUES (mac = ?, userid = ?)");
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        for (String mac : macs) {          
+            try {
+                p = con.prepareStatement("INSERT INTO MAC(MAC, USERID) VALUES (?,?)");
                 int i = 1;
                 p.setString(i++, mac);
                 p.setInt(i++, userId);
-                p.executeQuery();                       
-            }
-            return true;
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (p != null) {
-                    p.close();
-                }
+                p.executeUpdate();
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
+                return false;
+            } finally {
+                try { if (rs != null) rs.close(); } catch (Exception e) {};
+                try { if (p != null) p.close(); } catch (Exception e) {};
             }
         }
-        return false;
+        return true;
     }
 
     public List<String> getMacsByUserId(int userId) {
+        ResultSet rs = null;
+        PreparedStatement p = null;
         List<String> macs = new ArrayList<>();
         try {
             p = con.prepareStatement("SELECT * FROM MAC WHERE USERID = ?");
@@ -149,17 +159,89 @@ public class DatabaseManager {
             System.out.println(ex.getMessage());
 
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (p != null) {
-                    p.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
         }
         return macs;
     }
+    
+    public boolean addUserToBlacklist(int userId)
+    {
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        try {
+            p = con.prepareStatement("INSERT INTO BLACKLIST(USERID) VALUES (?)");
+            int i = 1;
+            p.setInt(i++, userId);
+            p.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
+        }
+        return false;
+    }
+    
+        public boolean removeUserFromBlacklist(int userId)
+    {
+        PreparedStatement p = null;
+        try {
+            p = con.prepareStatement("DELETE FROM BLACKLIST WHERE USERID = (?)");
+            int i = 1;
+            p.setInt(i++, userId);
+            p.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        } finally {
+            try { if (p != null) p.close(); } catch (Exception e) {};
+        }
+        return false;
+    }
+    
+    public List<Integer> getUserIdsInBlacklist()
+    {
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        List<Integer> blacklist = new ArrayList<>();
+        List<String> macs = new ArrayList<>();
+        try {
+            p = con.prepareStatement("SELECT * FROM BLACKLIST");
+            rs = p.executeQuery();
+            while (rs.next()) {
+                blacklist.add(rs.getInt(2));
+            }
+            return blacklist;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
+        }
+        return null;
+    }
+    
+    public boolean updateUser(User user){
+        PreparedStatement p = null;
+        try {
+            p = con.prepareStatement("UPDATE PERSON SET ACCESSTOKEN = (?), REFRESHTOKEN = (?) WHERE USERID = (?)");
+            int i = 1;
+            p.setString(i++, user.getAccessToken());
+            p.setString(i++, user.getRefreshToken());
+            p.setInt(i++, user.getUserId());
+            p.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        } finally {
+            try { if (p != null) p.close(); } catch (Exception e) {};
+        }
+        return false;
+    }
+    
+    
+ 
 }

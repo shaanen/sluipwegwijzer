@@ -7,38 +7,42 @@
 var canvas;
 
 function createCanvas(){
-    if (canvas){
-        document.body.removeChild(canvas);
-    }
-    canvas = document.createElement('canvas');
+    
+    canvas = document.getElementById("swwCanvas");
     canvas.setAttribute('width', 800 * getScale());
-    canvas.setArrtibute('height', 330 * getScale());
-    canvas.setAttribute('style', 'position: absolute; x:0; y:0');
-    document.body.appendChild(canvas);
+    canvas.setAttribute('height', 400 * getScale());
 }
 
 function getPointsToDraw(){
-    
     var pointsToDraw = [];
     
     $.ajax({
-        url: 'http://PLACEHOLDER', //voer url in van backend
+        url: 'http://localhost:8080/sluipwegwijzer/api/sluipwegwijzerApi/currentLocations', //voer url in van backend
         dataType: 'application/json; charset=utf8',
         complete: function(data){
-            pointsToDraw = JSON.parse(data);
+            pointsToDraw = JSON.parse(data.responseText);
+            drawPoints(pointsToDraw);
+            setTimeout(getPointsToDraw, 30000);
         }
     });
     
-    drawPoints(pointsToDraw);
 }
 
 function drawPoints(pointsToDraw){
-    
-    createCanvas();
+
+    document.getElementById("Names").innerHTML = '<p>LEGENDA</p>';
     var ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,800,400);
+    var img = document.getElementById("Sluipwegwijzer");
+    ctx.drawImage(img, 0, 0, 800, 330);
     
     for (var i = 0; i < pointsToDraw.length; i++){
-        ctx.fillRect(pointsToDraw[i].x, pointsToDraw[i].y, 5, 5);
+        ctx.fillStyle = pointsToDraw[i].rgbcolor;
+        ctx.fillRect(pointsToDraw[i].x, pointsToDraw[i].y, 10, 10);
         // naam toevoegen zijkant, kleur misschien?
+        var Name = document.createElement("p");
+        Name.innerHTML = pointsToDraw[i].name;
+        Name.style.color = pointsToDraw[i].rgbcolor;
+        document.getElementById("Names").appendChild(Name);
     }
 }

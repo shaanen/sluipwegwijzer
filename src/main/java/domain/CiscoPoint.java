@@ -5,6 +5,8 @@
  */
 package domain;
 
+import java.awt.Color;
+
 /**
  *
  * @author Daan
@@ -14,11 +16,16 @@ public class CiscoPoint {
     private double x;
     private double y;
     private final String locatedDateTime;
+    private String name;
+    private String rgbcolor;
 
     public CiscoPoint(double x, double y, String locatedDateTime) {
         this.x = x;
         this.y = y;
         this.locatedDateTime = locatedDateTime;
+        this.name = null;
+        Color c = new Color((int)(Math.random() * 0x1000000));
+        this.rgbcolor = "rgb(" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + ")";
     }
 
     public double getX() {
@@ -31,6 +38,26 @@ public class CiscoPoint {
 
     public String getLocatedDateTime() {
         return locatedDateTime;
+    }
+    
+    public String getName(){
+        return name;
+    }
+    
+    public String getColor(){
+        return rgbcolor;
+    }
+    
+    public void setName(String name){
+        this.name = name;
+    }
+    
+    public void setX(double X){
+        this.x = X;
+    }
+    
+    public void setY(double Y){
+        this.y = Y;
     }
     
     @Override

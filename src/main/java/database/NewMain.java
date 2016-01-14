@@ -47,6 +47,12 @@ public class NewMain {
             System.out.println("Changed user " + user.getUserId() + " accesstoken");
             System.out.println("User " + user.getUserId() + " accesstoken: " + (man.getUser(user.getUserId())).getAccessToken());
         }
+        List<User> users = man.getAllUsers();
+        System.out.println("Getting all users... ");
+        for (User u : users)
+        {          
+            System.out.println("Found user: " + u.getUserId());
+        }
         
     }
 

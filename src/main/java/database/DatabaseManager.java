@@ -115,6 +115,25 @@ public class DatabaseManager {
         }
         return user;
     }
+    
+        public List<User> getAllUsers() {
+        ResultSet rs = null;
+        PreparedStatement p = null;
+        List<User> users = new ArrayList<>();
+        try {
+            p = con.prepareStatement("SELECT * FROM PERSON");
+            rs = p.executeQuery();
+            while (rs.next()) {
+                users.add(getUser(rs.getInt(1)));
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {};
+            try { if (p != null) p.close(); } catch (Exception e) {};
+        }
+        return users;
+    }
 
     public User getUserByMac(String mac) {
         User user;
@@ -164,6 +183,8 @@ public class DatabaseManager {
         }
         return macs;
     }
+    
+    
     
     public boolean addUserToBlacklist(int userId)
     {

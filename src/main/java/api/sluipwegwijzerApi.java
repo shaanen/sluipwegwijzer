@@ -27,6 +27,7 @@ public class sluipwegwijzerApi {
     @Produces("application/json")
     @Path("/hoi")
     public Response hoi(){
+        
         return Response.ok()
                 .entity("Hallo")
                 .header("Access-Control-Allow-Origin", "*")

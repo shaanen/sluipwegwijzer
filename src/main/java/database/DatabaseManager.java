@@ -31,7 +31,7 @@ public class DatabaseManager {
     public DatabaseManager() throws SQLException {
         URL = "jdbc:mysql://46.17.2.254:3306/ics7_tracker";
         USER = "ics7";
-        PASSWORD = "EfGYm8SKb6vbCNjp";
+        PASSWORD = "[hier wachtwoord]";
         DRIVER = "com.mysql.jdbc.Driver";
         con = DriverManager.getConnection(URL, USER, PASSWORD);
     }

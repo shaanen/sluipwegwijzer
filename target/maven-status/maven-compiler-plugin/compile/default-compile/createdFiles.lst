@@ -1,5 +1,5 @@
+oauth\RequestsManager.class
 database\NewMain.class
 domain\User.class
 database\DatabaseManager.class
-oauth\RequestsManager.class
 domain\Blacklist.class
